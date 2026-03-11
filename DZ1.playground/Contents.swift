@@ -1,7 +1,7 @@
 import UIKit
 import Foundation
 
-var balance: Double = 200
+var balance: Double = 20000
 let currency = "RUB"
 
 var isPositionOpen = false
