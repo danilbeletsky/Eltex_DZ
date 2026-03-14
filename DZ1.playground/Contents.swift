@@ -17,14 +17,11 @@ for _ in 0..<10 {
         
         if choice == 0 {
             print("\(String(format:"%.2f", price)) \(currency) - игнор")
-        }
-        
-        else if choice == 1 {
+        }else if choice == 1 {
             buyPrice = price
             isPositionOpen = true
             print("\(String(format:"%.2f",price)) \(currency) - покупка")
         }
-        
     } else {
         let sellPrice = price
         let income = sellPrice - buyPrice
