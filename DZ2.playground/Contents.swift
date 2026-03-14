@@ -13,6 +13,11 @@ extension String {
     }
 }
 
+private protocol BotProtocol {
+    var name: String { get set }
+    mutating func returnName()
+}
+
 protocol MoneyProtocol {
     var balance: Double { get }
     var currency: String { get }
@@ -150,7 +155,6 @@ class Money: MoneyProtocol {
         print("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
     }
     
-    
     private func transactionSell() {
         let sellPrice = price
         let income = sellPrice - buyPrice
@@ -163,13 +167,6 @@ class Money: MoneyProtocol {
         
         isPositionOpen = false
     }
-    
-}
-
-
-private protocol BotProtocol {
-    var name: String { get set }
-    mutating func returnName()
 }
 
 struct Bot: BotProtocol {
