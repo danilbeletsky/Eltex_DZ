@@ -28,7 +28,7 @@ protocol MoneyProtocol {
     func generateRandomPrice()
 }
 
-class Money: MoneyProtocol {
+final class Money: MoneyProtocol {
     private enum Choice: Int, CaseIterable {
         case purchase = 1
         case sale = 2
