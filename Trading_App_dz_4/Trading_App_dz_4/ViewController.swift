@@ -1,21 +1,79 @@
 import UIKit
 import Foundation
 
-extension Double {
+private extension Double {
     var asCurrency: String {
         return String(format: "%.2f", self)
     }
 }
 
-extension String {
+private extension String {
     var capitalizedFirst: String {
         return prefix(1).uppercased() + dropFirst()
     }
 }
 
+private extension Money {
+    
+    func performTradeCycle() {
+        generateRandomPrice()
+        log("\n\(formattedPrice)")
+        
+        if !isPositionOpen {
+            handleClosedPosition()
+        } else {
+            handleOpenPosition()
+        }
+    }
+    
+    func handleClosedPosition() {
+        choice = Choice.allCases.randomElement() ?? .ignore
+        
+        switch choice {
+        case .ignore:
+            log(choice.description.capitalizedFirst)
+        case .purchase:
+            buyPrice = price
+            isPositionOpen = true
+            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
+        case .sale:
+            log("Нет позиции для продажи")
+        }
+    }
+    
+    func handleOpenPosition() {
+        log(positionStatus)
+        
+        if let pl = profitLoss {
+            log("Доход/Убыток: \(pl.asCurrency)")
+        }
+        
+        choice = Choice.allCases.randomElement() ?? .ignore
+        
+        switch choice {
+        case .sale:
+            let sellPrice = price
+            let income = sellPrice - buyPrice
+            balance += income
+            
+            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
+            log("FROM: \(buyPrice.asCurrency) → TO: \(sellPrice.asCurrency)")
+            log("ДОХОД: \(income.asCurrency)")
+            log(formattedBalance)
+            
+            isPositionOpen = false
+            
+        case .purchase:
+            log("Уже есть открытая позиция")
+        case .ignore:
+            log("Держу позицию")
+        }
+    }
+}
+
 private protocol BotProtocol {
     var name: String { get set }
-    mutating func returnName()
+    func makeName() -> String
 }
 
 protocol MoneyProtocol {
@@ -43,9 +101,12 @@ final class Money: MoneyProtocol {
         
         var description: String {
             switch self {
-            case .purchase: return "покупка"
-            case .sale: return "продажа"
-            case .ignore: return "игнор"
+            case .purchase:
+                return "покупка"
+            case .sale:
+                return "продажа"
+            case .ignore:
+                return "игнор"
             }
         }
     }
@@ -102,76 +163,23 @@ final class Money: MoneyProtocol {
     func generateRandomPrice() {
         self.price = Double.random(in: 1000...50000)
     }
-    
-    private func performTradeCycle() {
-        generateRandomPrice()
-        log("\n\(formattedPrice)")
-        
-        if !isPositionOpen {
-            handleClosedPosition()
-        } else {
-            handleOpenPosition()
-        }
-    }
-    
-    private func handleClosedPosition() {
-        choice = Choice.allCases.randomElement() ?? .ignore
-        
-        switch choice {
-        case .ignore:
-            log(choice.description.capitalizedFirst)
-        case .purchase:
-            buyPrice = price
-            isPositionOpen = true
-            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
-        case .sale:
-            log("Нет позиции для продажи")
-        }
-    }
-    
-    private func handleOpenPosition() {
-        log(positionStatus)
-        
-        if let pl = profitLoss {
-            log("Доход/Убыток: \(pl.asCurrency)")
-        }
-        
-        choice = Choice.allCases.randomElement() ?? .ignore
-        
-        switch choice {
-        case .sale:
-            let sellPrice = price
-            let income = sellPrice - buyPrice
-            balance += income
-            
-            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
-            log("FROM: \(buyPrice.asCurrency) → TO: \(sellPrice.asCurrency)")
-            log("ДОХОД: \(income.asCurrency)")
-            log(formattedBalance)
-            
-            isPositionOpen = false
-            
-        case .purchase:
-            log("Уже есть открытая позиция")
-        case .ignore:
-            log("Держу позицию")
-        }
-    }
 }
 
 struct Bot: BotProtocol {
     private let nameList = ["Bob", "Nikita", "Danil", "Alice", "Barmaldak"]
     
     var onUpdate: ((String) -> Void)?
-    
     var name = String()
     
     var greeting: String {
         return "Вас приветствует \(name) бот"
     }
     
-    mutating func returnName() {
-        self.name = nameList.randomElement() ?? "GPT"
+    func makeName() -> String {
+        return nameList.randomElement() ?? "GPT"
+    }
+    
+    func sendGreeting() {
         onUpdate?(greeting)
     }
 }
@@ -284,7 +292,11 @@ final class ViewController: UIViewController {
         
         var bot = Bot()
         bot.onUpdate = append
-        bot.returnName()
+
+        let newName = bot.makeName()
+        bot.name = newName
+
+        bot.sendGreeting()
         
         let money = Money(balance: 20000)
         money.onUpdate = append
