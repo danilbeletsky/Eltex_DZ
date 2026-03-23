@@ -1,188 +1,4 @@
 import UIKit
-import Foundation
-
-private extension Double {
-    var asCurrency: String {
-        return String(format: "%.2f", self)
-    }
-}
-
-private extension String {
-    var capitalizedFirst: String {
-        return prefix(1).uppercased() + dropFirst()
-    }
-}
-
-private extension Money {
-    
-    func performTradeCycle() {
-        generateRandomPrice()
-        log("\n\(formattedPrice)")
-        
-        if !isPositionOpen {
-            handleClosedPosition()
-        } else {
-            handleOpenPosition()
-        }
-    }
-    
-    func handleClosedPosition() {
-        choice = Choice.allCases.randomElement() ?? .ignore
-        
-        switch choice {
-        case .ignore:
-            log(choice.description.capitalizedFirst)
-        case .purchase:
-            buyPrice = price
-            isPositionOpen = true
-            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
-        case .sale:
-            log("Нет позиции для продажи")
-        }
-    }
-    
-    func handleOpenPosition() {
-        log(positionStatus)
-        
-        if let pl = profitLoss {
-            log("Доход/Убыток: \(pl.asCurrency)")
-        }
-        
-        choice = Choice.allCases.randomElement() ?? .ignore
-        
-        switch choice {
-        case .sale:
-            let sellPrice = price
-            let income = sellPrice - buyPrice
-            balance += income
-            
-            log("\(choice.description.capitalizedFirst) по \(price.asCurrency)")
-            log("FROM: \(buyPrice.asCurrency) → TO: \(sellPrice.asCurrency)")
-            log("ДОХОД: \(income.asCurrency)")
-            log(formattedBalance)
-            
-            isPositionOpen = false
-            
-        case .purchase:
-            log("Уже есть открытая позиция")
-        case .ignore:
-            log("Держу позицию")
-        }
-    }
-}
-
-private protocol BotProtocol {
-    var name: String { get set }
-    func makeName() -> String
-}
-
-protocol MoneyProtocol {
-    var balance: Double { get }
-    var currency: String { get }
-    var formattedBalance: String { get }
-    
-    func startTrading()
-    func generateRandomCurrency()
-    func generateRandomPrice()
-}
-
-final class Money: MoneyProtocol {
-    
-    var onUpdate: ((String) -> Void)?
-    
-    private func log(_ text: String) {
-        onUpdate?(text)
-    }
-    
-    private enum Choice: Int, CaseIterable {
-        case purchase = 1
-        case sale = 2
-        case ignore = 0
-        
-        var description: String {
-            switch self {
-            case .purchase:
-                return "покупка"
-            case .sale:
-                return "продажа"
-            case .ignore:
-                return "игнор"
-            }
-        }
-    }
-    
-    private(set) var balance: Double
-    private(set) var currency: String
-    private(set) var isPositionOpen = false
-    private(set) var buyPrice: Double = 0
-    private(set) var price: Double
-    private var choice: Choice
-    
-    var formattedBalance: String {
-        return "\(balance.asCurrency) \(currency)"
-    }
-    
-    var formattedPrice: String {
-        return "\(price.asCurrency) \(currency)"
-    }
-    
-    var profitLoss: Double? {
-        guard isPositionOpen else { return nil }
-        return price - buyPrice
-    }
-    
-    var positionStatus: String {
-        return isPositionOpen ? "Открыта (куплено по \(buyPrice.asCurrency))" : "Закрыта"
-    }
-    
-    init(balance: Double) {
-        self.balance = balance
-        self.price = Double.random(in: 1000...50000)
-        self.currency = "RUB"
-        self.choice = .ignore
-    }
-    
-    func startTrading() {
-        generateRandomCurrency()
-        log("\nНачало торгов")
-        log(formattedBalance)
-        
-        for _ in 0..<10 {
-            performTradeCycle()
-        }
-        
-        log("\nИтог")
-        log(formattedBalance)
-    }
-    
-    func generateRandomCurrency() {
-        let currencyList = ["USD", "EUR", "RUB", "BTC", "ETH"]
-        self.currency = currencyList.randomElement() ?? "RUB"
-    }
-    
-    func generateRandomPrice() {
-        self.price = Double.random(in: 1000...50000)
-    }
-}
-
-struct Bot: BotProtocol {
-    private let nameList = ["Bob", "Nikita", "Danil", "Alice", "Barmaldak"]
-    
-    var onUpdate: ((String) -> Void)?
-    var name = String()
-    
-    var greeting: String {
-        return "Вас приветствует \(name) бот"
-    }
-    
-    func makeName() -> String {
-        return nameList.randomElement() ?? "GPT"
-    }
-    
-    func sendGreeting() {
-        onUpdate?(greeting)
-    }
-}
 
 final class ViewController: UIViewController {
 
@@ -282,27 +98,24 @@ final class ViewController: UIViewController {
     @objc func runTapped() {
         outputTextView.text = ""
         
-        func append(_ text: String) {
-            DispatchQueue.main.async {
-                self.outputTextView.text += text + "\n"
-                let range = NSRange(location: self.outputTextView.text.count - 1, length: 0)
-                self.outputTextView.scrollRangeToVisible(range)
-            }
-        }
-        
         var bot = Bot()
-        bot.onUpdate = append
-
         let newName = bot.makeName()
         bot.name = newName
-
-        bot.sendGreeting()
+        
+        let greetingText = bot.sendGreeting()
+        appendText(greetingText)
         
         let money = Money(balance: 20000)
-        money.onUpdate = append
+        let tradingLogs = money.startTrading()
         
-        DispatchQueue.global().async {
-            money.startTrading()
+        for log in tradingLogs {
+            appendText(log)
         }
+    }
+    
+    private func appendText(_ text: String) {
+        outputTextView.text += text + "\n"
+        let range = NSRange(location: outputTextView.text.count - 1, length: 0)
+        outputTextView.scrollRangeToVisible(range)
     }
 }
