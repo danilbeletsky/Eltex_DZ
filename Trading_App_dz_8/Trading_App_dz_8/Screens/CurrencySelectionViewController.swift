@@ -260,7 +260,7 @@ final class CurrencySelectionViewController: UIViewController {
             // Rate
             rateLabel.trailingAnchor.constraint(equalTo: viewHeader.trailingAnchor, constant: -16),
             rateLabel.centerYAnchor.constraint(equalTo: selectedCurrenciesLabelFirst.centerYAnchor),
-            rateLabel.widthAnchor.constraint(equalToConstant: 220),
+            rateLabel.widthAnchor.constraint(equalToConstant: 180),
             rateLabel.heightAnchor.constraint(equalToConstant: 40),
             
             // TextField
