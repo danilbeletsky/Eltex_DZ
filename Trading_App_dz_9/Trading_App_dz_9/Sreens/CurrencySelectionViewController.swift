@@ -1,5 +1,12 @@
 import UIKit
 
+protocol CurrencySelectionViewControllerDelegate: AnyObject {
+    func currencySelectionViewController(
+        _ controller: CurrencySelectionViewController,
+        didUpdatePair pair: CurrencyPair
+    )
+}
+
 final class CurrencySelectionViewController: UIViewController {
     
     // MARK: UI Elements
@@ -26,10 +33,10 @@ final class CurrencySelectionViewController: UIViewController {
     }()
     
     // MARK: - Data
-    private let items = ["USD", "BTS", "EUR", "RUB", "GBP", "JPY", "CNY", "BTC", "ETH", "USDT", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
+     let items = ["USD", "BTS", "EUR", "RUB", "GBP", "JPY", "CNY", "BTC", "ETH", "USDT", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
     
     private let fiatCurrencies: Set<String> = ["USD", "EUR", "RUB", "GBP", "JPY", "CNY", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
-    private let cryptoCurrencies: Set<String> = ["BTC", "ETH", "USDT", "BTS"]
+    private let cryptoCurrencies: Set<String> = ["BTS", "ETH", "USDT", "BTS"]
     
     private var favoritesCurrencies: Set<String> = []
     private var labelCurrenciesHeaderChois: [UILabel] = []
@@ -40,12 +47,23 @@ final class CurrencySelectionViewController: UIViewController {
     private var collectionView: UICollectionView!
     private var filteredItems: [String] = []
     
+    weak var delegate: CurrencySelectionViewControllerDelegate?
+    var currentPair: CurrencyPair = CurrencyPair(from: "USD", to: "BTC")
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = "Все валюты"
+        view.backgroundColor = .white
+        
         loadFavorites()
         filteredItems = items
         setupUI()
+        
+        selectedCurrenciesLabelFirst.text = currentPair.from
+        selectedCurrenciesLabelSecond.text = currentPair.to
+        
         startTimer()
         updateRate()
     }
@@ -260,7 +278,7 @@ final class CurrencySelectionViewController: UIViewController {
             // Rate
             rateLabel.trailingAnchor.constraint(equalTo: viewHeader.trailingAnchor, constant: -16),
             rateLabel.centerYAnchor.constraint(equalTo: selectedCurrenciesLabelFirst.centerYAnchor),
-            rateLabel.widthAnchor.constraint(equalToConstant: 220),
+            rateLabel.widthAnchor.constraint(equalToConstant: 180),
             rateLabel.heightAnchor.constraint(equalToConstant: 40),
             
             // TextField
@@ -294,6 +312,15 @@ final class CurrencySelectionViewController: UIViewController {
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.itemSize = CGSize(width: 120, height: 100)
         }
+    }
+    
+    func notifyAboutPairChange() {
+        let pair = CurrencyPair(
+            from: selectedCurrenciesLabelFirst.text ?? "USD",
+            to: selectedCurrenciesLabelSecond.text ?? "BTC"
+        )
+        
+        delegate?.currencySelectionViewController(self, didUpdatePair: pair)
     }
     
     // MARK: Actions
@@ -483,7 +510,6 @@ extension CurrencySelectionViewController: UICollectionViewDelegate {
         if isEditingFirstCurrency {
             if selectedCurrency != selectedCurrenciesLabelSecond.text {
                 selectedCurrenciesLabelFirst.text = selectedCurrency
-                updateRate()
             } else {
                 showAlert(message: "Нельзя выбрать одинаковые валюты")
                 return
@@ -491,12 +517,14 @@ extension CurrencySelectionViewController: UICollectionViewDelegate {
         } else {
             if selectedCurrency != selectedCurrenciesLabelFirst.text {
                 selectedCurrenciesLabelSecond.text = selectedCurrency
-                updateRate()
             } else {
                 showAlert(message: "Нельзя выбрать одинаковые валюты")
                 return
             }
         }
+        
+        updateRate()
+        notifyAboutPairChange()
         collectionView.reloadData()
     }
 }
@@ -525,3 +553,5 @@ extension CurrencySelectionViewController: FavoriteFilterViewDelegate {
         updateEmptyState()
     }
 }
+
+

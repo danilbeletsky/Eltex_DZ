@@ -89,6 +89,8 @@ protocol MoneyProtocol {
 
 final class Money: MoneyProtocol {
     
+    let currencyVc = CurrencySelectionViewController()
+    
     private enum Choice: Int, CaseIterable {
         case purchase = 1
         case sale = 2
@@ -133,7 +135,7 @@ final class Money: MoneyProtocol {
     init(balance: Double) {
         self.balance = balance
         self.price = Double.random(in: 1000...50000)
-        self.currency = "RUB"
+        self.currency = ""
         self.choice = .ignore
     }
     
@@ -258,7 +260,7 @@ final class Money: MoneyProtocol {
     }
     
     func generateRandomCurrency() {
-        let currencyList = ["USD", "EUR", "RUB", "BTC", "ETH"]
+        let currencyList = currencyVc.items
         self.currency = currencyList.randomElement() ?? "RUB"
     }
     
