@@ -27,7 +27,11 @@ private extension SceneDelegate {
         )
         let chatNavigationController = UINavigationController(rootViewController: chatViewController)
         
-        tabBarController.viewControllers = [chatNavigationController]
+        let chartsViewController = ChartsViewController()
+        chartsViewController.title = "Charts"
+        chartsViewController.tabBarItem = UITabBarItem(title: "Charts", image: UIImage(systemName: "graph.2d"), tag: 1)
+        
+        tabBarController.viewControllers = [chartsViewController, chatNavigationController]
         
         return tabBarController
     }

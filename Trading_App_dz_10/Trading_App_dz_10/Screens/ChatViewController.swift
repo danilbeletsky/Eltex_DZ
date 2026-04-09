@@ -4,6 +4,7 @@ final class ChatViewController: UIViewController {
     
     // MARK: - UI Components
     private let runButton = UIButton()
+    private let chartButton = UIButton()
     private let stackRun = UIStackView()
     private let tableView = UITableView()
     
@@ -28,6 +29,7 @@ final class ChatViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupNavigationBar()
+        setupSwipeToOpenChart()
         updatePairUI()
         showEmptyState()
     }
@@ -70,6 +72,12 @@ final class ChatViewController: UIViewController {
         currentPair = CurrencyPair(from: from, to: to)
         updatePairUI()
         showEmptyState()
+    }
+
+    @objc private func openChartsScreen() {
+        let chartsViewController = ChartsViewController()
+        chartsViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(chartsViewController, animated: true)
     }
     
     // MARK: - Private Methods
@@ -166,6 +174,7 @@ private extension ChatViewController {
         view.backgroundColor = .white
         
         runButton.translatesAutoresizingMaskIntoConstraints = false
+        chartButton.translatesAutoresizingMaskIntoConstraints = false
         stackRun.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -184,12 +193,21 @@ private extension ChatViewController {
             action: #selector(resetTradingScreen)
         )
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
+        let randomButton = UIBarButtonItem(
             image: UIImage(systemName: "shuffle"),
             style: .plain,
             target: self,
             action: #selector(randomizePair)
         )
+
+        let chartButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
+            style: .plain,
+            target: self,
+            action: #selector(openChartsScreen)
+        )
+
+        navigationItem.rightBarButtonItems = [randomButton, chartButtonItem]
     }
     
     private func setupPairView() {
@@ -233,6 +251,7 @@ private extension ChatViewController {
         
         stackRun.addSubview(runButton)
         stackRun.addSubview(pairContainerView)
+        stackRun.addSubview(chartButton)
         
         pairContainerView.addSubview(pairTitleLabel)
         pairContainerView.addSubview(fromCurrencyLabel)
@@ -246,7 +265,7 @@ private extension ChatViewController {
             stackRun.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             stackRun.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackRun.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            stackRun.heightAnchor.constraint(equalToConstant: 280),
+            stackRun.heightAnchor.constraint(equalToConstant: 350),
             
             // Run Button
             runButton.topAnchor.constraint(equalTo: stackRun.topAnchor, constant: 12),
@@ -265,6 +284,11 @@ private extension ChatViewController {
             pairContainerView.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 16),
             pairContainerView.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -16),
             pairContainerView.heightAnchor.constraint(equalToConstant: 80),
+
+            chartButton.topAnchor.constraint(equalTo: pairContainerView.bottomAnchor, constant: 20),
+            chartButton.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 20),
+            chartButton.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -20),
+            chartButton.heightAnchor.constraint(equalToConstant: 50),
 
             // Pair Title
             pairTitleLabel.topAnchor.constraint(equalTo: pairContainerView.topAnchor, constant: 8),
@@ -290,6 +314,12 @@ private extension ChatViewController {
         runButton.backgroundColor = .green
         runButton.layer.cornerRadius = 12
         runButton.addTarget(self, action: #selector(run), for: .touchUpInside)
+
+        chartButton.setTitle("График", for: .normal)
+        chartButton.setTitleColor(.white, for: .normal)
+        chartButton.backgroundColor = .systemBlue
+        chartButton.layer.cornerRadius = 12
+        chartButton.addTarget(self, action: #selector(openChartsScreen), for: .touchUpInside)
     }
     
     func updatePairUI() {
@@ -309,6 +339,15 @@ private extension ChatViewController {
         }
         
         present(vc, animated: true)
+    }
+
+    func setupSwipeToOpenChart() {
+        [view, stackRun, tableView].forEach { targetView in
+            let swipeUpGesture = UISwipeGestureRecognizer(target: self, action: #selector(openChartsScreen))
+            swipeUpGesture.direction = .up
+            swipeUpGesture.cancelsTouchesInView = false
+            targetView.addGestureRecognizer(swipeUpGesture)
+        }
     }
 }
 
