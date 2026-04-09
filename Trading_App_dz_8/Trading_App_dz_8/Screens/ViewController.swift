@@ -1,6 +1,6 @@
 import UIKit
 
-class ViewController: UIViewController {
+final class ViewController: UIViewController {
     
     // MARK: - UI Components
     private let runButton = UIButton()
