@@ -1,6 +1,6 @@
 import UIKit
 
-class ChatViewController: UIViewController {
+final class ChatViewController: UIViewController {
     
     // MARK: - UI Components
     private let runButton = UIButton()
