@@ -8,7 +8,11 @@ protocol CurrencySelectionViewControllerDelegate: AnyObject {
 }
 
 final class CurrencySelectionViewController: UIViewController {
-    
+
+    private enum PersistenceKey {
+        static let favoriteCurrencies = "favoriteCurrencies"
+    }
+
     // MARK: UI Elements
     private let viewHeader = UIView()
     private let selectedCurrenciesLabelFirst = UILabel()
@@ -33,13 +37,15 @@ final class CurrencySelectionViewController: UIViewController {
     }()
     
     // MARK: - Data
-     let items = ["USD", "BTS", "EUR", "RUB", "GBP", "JPY", "CNY", "BTC", "ETH", "USDT", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
-    
+
+    /// Общий список кодов валют (торговля, фильтры, рандом в `Money`).
+    static let tradingCurrencyCodes: [String] = ["USD", "BTS", "EUR", "RUB", "GBP", "JPY", "CNY", "BTC", "ETH", "USDT", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
+
     private let fiatCurrencies: Set<String> = ["USD", "EUR", "RUB", "GBP", "JPY", "CNY", "AED", "AFN", "ALL", "AMD", "ANG", "AOA", "ARS", "AUD", "AWG", "AZN", "BAM", "BBD", "BDT", "BGN", "BHD", "BIF", "BMD", "BND", "BOB", "BRL", "BSD", "BTN", "BWP", "BYN", "BZD", "CAD", "CDF", "CHF", "CLP", "CNH", "COP", "CRC", "CUP", "CVE", "CZK", "DJF", "DKK", "DOP", "DZD", "EGP", "ERN", "ETB", "FJD", "FKP", "FOK", "GEL", "GGP", "GHS", "GIP", "GMD", "GNF", "GTQ", "GYD", "HKD", "HNL", "HRK", "HTG", "HUF", "IDR", "ILS", "IMP", "INR", "IQD", "IRR", "ISK", "JEP", "JMD", "JOD", "KES", "KGS", "KHR", "KID", "KMF", "KRW", "KWD", "KYD", "KZT", "LAK", "LBP", "LKR", "LRD", "LSL", "LYD", "MAD", "MDL", "MGA", "MKD", "MMK", "MNT", "MOP", "MRU", "MUR", "MVR", "MWK", "MXN", "MYR", "MZN", "NAD", "NGN", "NIO", "NOK", "NPR", "NZD", "OMR", "PAB", "PEN", "PGK", "PHP", "PKR", "PLN", "PYG", "QAR", "RON", "RSD", "RWF", "SAR", "SBD", "SCR", "SDG", "SEK", "SGD", "SHP", "SLE", "SLL", "SOS", "SRD", "SSP", "STN", "SYP", "SZL", "THB", "TJS", "TMT", "TND", "TOP", "TRY", "TTD", "TWD", "TZS", "UAH", "UGX", "UYU", "UZS", "VES", "VND", "VUV", "WST", "XAF", "XCD", "XDR", "XOF", "XPF", "YER", "ZAR", "ZMW", "ZWL"]
-    private let cryptoCurrencies: Set<String> = ["BTS", "ETH", "USDT", "BTS"]
-    
-    private var favoritesCurrencies: Set<String> = []
-    private var labelCurrenciesHeaderChois: [UILabel] = []
+    private let cryptoCurrencies: Set<String> = ["BTC", "ETH", "USDT", "BTS"]
+
+    private var favoriteCurrencyCodes: Set<String> = []
+    private var currencySectionHeaderLabels: [UILabel] = []
     private var isEditingFirstCurrency = true
     private var currentRate: Double = 0.0
     private var timer: Timer?
@@ -58,7 +64,7 @@ final class CurrencySelectionViewController: UIViewController {
         view.backgroundColor = .white
         
         loadFavorites()
-        filteredItems = items
+        filteredItems = Self.tradingCurrencyCodes
         setupUI()
         
         selectedCurrenciesLabelFirst.text = currentPair.from
@@ -73,7 +79,7 @@ final class CurrencySelectionViewController: UIViewController {
         setupHeader()
         setupFavoriteFilter()
         setupCollectionView()
-        setuorateLabel()
+        setupRateLabel()
         setupFilter()
         setupConversionUI()
         addSubviews()
@@ -89,7 +95,7 @@ final class CurrencySelectionViewController: UIViewController {
         filterSegmentedControl.selectedSegmentIndex = 0
         filterSegmentedControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
     }
-    // MARK: Setuup Conversion
+    // MARK: Conversion
     func setupConversionUI() {
         amountTextField.placeholder = "Введите сумму"
         amountTextField.borderStyle = .roundedRect
@@ -168,11 +174,11 @@ final class CurrencySelectionViewController: UIViewController {
         toLabel.numberOfLines = 0
         toLabel.textColor = .black
         
-        labelCurrenciesHeaderChois = [fromLabel, toLabel]
+        currencySectionHeaderLabels = [fromLabel, toLabel]
         updateActiveCurrencyHighlight()
     }
     
-    func setuorateLabel() {
+    func setupRateLabel() {
         rateLabel.text = "Курс - "
         rateLabel.textColor = .black
         rateLabel.textAlignment = .center
@@ -193,7 +199,7 @@ final class CurrencySelectionViewController: UIViewController {
         collectionView.backgroundColor = .darkGray
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.register(MyCell.self, forCellWithReuseIdentifier: MyCell.identifire)
+        collectionView.register(MyCell.self, forCellWithReuseIdentifier: MyCell.reuseIdentifier)
     }
     
     // MARK: Layout
@@ -204,9 +210,9 @@ final class CurrencySelectionViewController: UIViewController {
         view.addSubview(collectionView)
         view.addSubview(emptyStateLabel)
         
-        viewHeader.addSubview(labelCurrenciesHeaderChois[0])
+        viewHeader.addSubview(currencySectionHeaderLabels[0])
         viewHeader.addSubview(selectedCurrenciesLabelFirst)
-        viewHeader.addSubview(labelCurrenciesHeaderChois[1])
+        viewHeader.addSubview(currencySectionHeaderLabels[1])
         viewHeader.addSubview(selectedCurrenciesLabelSecond)
         viewHeader.addSubview(rateLabel)
         viewHeader.addSubview(amountTextField)
@@ -222,8 +228,8 @@ final class CurrencySelectionViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         selectedCurrenciesLabelFirst.translatesAutoresizingMaskIntoConstraints = false
         selectedCurrenciesLabelSecond.translatesAutoresizingMaskIntoConstraints = false
-        labelCurrenciesHeaderChois[0].translatesAutoresizingMaskIntoConstraints = false
-        labelCurrenciesHeaderChois[1].translatesAutoresizingMaskIntoConstraints = false
+        currencySectionHeaderLabels[0].translatesAutoresizingMaskIntoConstraints = false
+        currencySectionHeaderLabels[1].translatesAutoresizingMaskIntoConstraints = false
         rateLabel.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         resultLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -255,23 +261,23 @@ final class CurrencySelectionViewController: UIViewController {
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -15),
             
             // Header Labels
-            labelCurrenciesHeaderChois[0].leadingAnchor.constraint(equalTo: viewHeader.leadingAnchor, constant: 16),
-            labelCurrenciesHeaderChois[0].topAnchor.constraint(equalTo: viewHeader.topAnchor, constant: 15),
-            labelCurrenciesHeaderChois[0].widthAnchor.constraint(equalToConstant: 70),
+            currencySectionHeaderLabels[0].leadingAnchor.constraint(equalTo: viewHeader.leadingAnchor, constant: 16),
+            currencySectionHeaderLabels[0].topAnchor.constraint(equalTo: viewHeader.topAnchor, constant: 15),
+            currencySectionHeaderLabels[0].widthAnchor.constraint(equalToConstant: 70),
             
             //Currencies First
-            selectedCurrenciesLabelFirst.leadingAnchor.constraint(equalTo: labelCurrenciesHeaderChois[0].trailingAnchor, constant: 12),
-            selectedCurrenciesLabelFirst.centerYAnchor.constraint(equalTo: labelCurrenciesHeaderChois[0].centerYAnchor),
+            selectedCurrenciesLabelFirst.leadingAnchor.constraint(equalTo: currencySectionHeaderLabels[0].trailingAnchor, constant: 12),
+            selectedCurrenciesLabelFirst.centerYAnchor.constraint(equalTo: currencySectionHeaderLabels[0].centerYAnchor),
             selectedCurrenciesLabelFirst.widthAnchor.constraint(equalToConstant: 100),
             selectedCurrenciesLabelFirst.heightAnchor.constraint(equalToConstant: 40),
             // //Currencies Chois second
-            labelCurrenciesHeaderChois[1].leadingAnchor.constraint(equalTo: viewHeader.leadingAnchor, constant: 16),
-            labelCurrenciesHeaderChois[1].topAnchor.constraint(equalTo: labelCurrenciesHeaderChois[0].bottomAnchor, constant: 12),
-            labelCurrenciesHeaderChois[1].widthAnchor.constraint(equalToConstant: 70),
+            currencySectionHeaderLabels[1].leadingAnchor.constraint(equalTo: viewHeader.leadingAnchor, constant: 16),
+            currencySectionHeaderLabels[1].topAnchor.constraint(equalTo: currencySectionHeaderLabels[0].bottomAnchor, constant: 12),
+            currencySectionHeaderLabels[1].widthAnchor.constraint(equalToConstant: 70),
             
             //Currencies Chois Second
-            selectedCurrenciesLabelSecond.leadingAnchor.constraint(equalTo: labelCurrenciesHeaderChois[1].trailingAnchor, constant: 12),
-            selectedCurrenciesLabelSecond.centerYAnchor.constraint(equalTo: labelCurrenciesHeaderChois[1].centerYAnchor),
+            selectedCurrenciesLabelSecond.leadingAnchor.constraint(equalTo: currencySectionHeaderLabels[1].trailingAnchor, constant: 12),
+            selectedCurrenciesLabelSecond.centerYAnchor.constraint(equalTo: currencySectionHeaderLabels[1].centerYAnchor),
             selectedCurrenciesLabelSecond.widthAnchor.constraint(equalToConstant: 100),
             selectedCurrenciesLabelSecond.heightAnchor.constraint(equalToConstant: 40),
             
@@ -374,20 +380,18 @@ final class CurrencySelectionViewController: UIViewController {
     
     // MARK: - Methods
     func updateActiveCurrencyHighlight() {
-        if isEditingFirstCurrency {
-            selectedCurrenciesLabelFirst.layer.borderWidth = 2
-            selectedCurrenciesLabelFirst.layer.borderColor = UIColor.systemBlue.cgColor
-            selectedCurrenciesLabelFirst.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
-            
-            selectedCurrenciesLabelSecond.layer.borderWidth = 0
-            selectedCurrenciesLabelSecond.backgroundColor = .white
+        applySelectionStyle(to: selectedCurrenciesLabelFirst, isSelected: isEditingFirstCurrency)
+        applySelectionStyle(to: selectedCurrenciesLabelSecond, isSelected: !isEditingFirstCurrency)
+    }
+
+    private func applySelectionStyle(to label: UILabel, isSelected: Bool) {
+        if isSelected {
+            label.layer.borderWidth = 2
+            label.layer.borderColor = UIColor.systemBlue.cgColor
+            label.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
         } else {
-            selectedCurrenciesLabelSecond.layer.borderWidth = 2
-            selectedCurrenciesLabelSecond.layer.borderColor = UIColor.systemBlue.cgColor
-            selectedCurrenciesLabelSecond.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.2)
-            
-            selectedCurrenciesLabelFirst.layer.borderWidth = 0
-            selectedCurrenciesLabelFirst.backgroundColor = .white
+            label.layer.borderWidth = 0
+            label.backgroundColor = .white
         }
     }
     
@@ -413,15 +417,15 @@ final class CurrencySelectionViewController: UIViewController {
         
         switch typeIndex {
         case 1:
-            typeFiltered = items.filter { fiatCurrencies.contains($0) }
+            typeFiltered = Self.tradingCurrencyCodes.filter { fiatCurrencies.contains($0) }
         case 2:
-            typeFiltered = items.filter { cryptoCurrencies.contains($0) }
+            typeFiltered = Self.tradingCurrencyCodes.filter { cryptoCurrencies.contains($0) }
         default:
-            typeFiltered = items
+            typeFiltered = Self.tradingCurrencyCodes
         }
         
         if favoriteFilterView.isFilterEnabled {
-            filteredItems = typeFiltered.filter { favoritesCurrencies.contains($0) }
+            filteredItems = typeFiltered.filter { favoriteCurrencyCodes.contains($0) }
         } else {
             filteredItems = typeFiltered
         }
@@ -454,12 +458,12 @@ final class CurrencySelectionViewController: UIViewController {
     }
     
     func saveFavorites() {
-        UserDefaults.standard.set(Array(favoritesCurrencies), forKey: "favoriteCurrencies")
+        UserDefaults.standard.set(Array(favoriteCurrencyCodes), forKey: PersistenceKey.favoriteCurrencies)
     }
     
     func loadFavorites() {
-        if let savedFavorites = UserDefaults.standard.array(forKey: "favoriteCurrencies") as? [String] {
-            favoritesCurrencies = Set(savedFavorites)
+        if let savedFavorites = UserDefaults.standard.array(forKey: PersistenceKey.favoriteCurrencies) as? [String] {
+            favoriteCurrencyCodes = Set(savedFavorites)
         }
     }
     
@@ -476,12 +480,12 @@ extension CurrencySelectionViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: MyCell.identifire,
+            withReuseIdentifier: MyCell.reuseIdentifier,
             for: indexPath) as? MyCell else { return UICollectionViewCell() }
         
         let currency = filteredItems[indexPath.item]
         
-        cell.configure(with: currency, isFavorite: favoritesCurrencies.contains(currency))
+        cell.configure(with: currency, isFavorite: favoriteCurrencyCodes.contains(currency))
         cell.delegate = self
         
         if currency == selectedCurrenciesLabelFirst.text || currency == selectedCurrenciesLabelSecond.text {
@@ -532,10 +536,10 @@ extension CurrencySelectionViewController: UICollectionViewDelegate {
 // MARK: - MyCellDelegate
 extension CurrencySelectionViewController: MyCellDelegate {
     func didTapFavoriteButton(in cell: MyCell, for currency: String) {
-        if favoritesCurrencies.contains(currency) {
-            favoritesCurrencies.remove(currency)
+        if favoriteCurrencyCodes.contains(currency) {
+            favoriteCurrencyCodes.remove(currency)
         } else {
-            favoritesCurrencies.insert(currency)
+            favoriteCurrencyCodes.insert(currency)
         }
         
         saveFavorites()

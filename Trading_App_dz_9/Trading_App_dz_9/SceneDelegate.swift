@@ -8,14 +8,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = createRootConstroller()
+        window?.rootViewController = createRootController()
         
         window?.makeKeyAndVisible()
     }
 }
 
 private extension SceneDelegate {
-    func createRootConstroller() -> UITabBarController {
+    func createRootController() -> UITabBarController {
         let tabBarController = UITabBarController()
         
         let chatViewController = ChatViewController()
