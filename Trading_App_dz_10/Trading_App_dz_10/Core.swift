@@ -3,13 +3,7 @@ import UIKit
 
 private extension Double {
     var asCurrency: String {
-        return String(format: "%.2f", self)
-    }
-}
-
-private extension String {
-    var capitalizedFirst: String {
-        return prefix(1).uppercased() + dropFirst()
+        String(format: "%.2f", self)
     }
 }
 
@@ -17,26 +11,20 @@ enum TradeType {
     case purchase
     case sale
     case ignore
-    
+
     var color: UIColor {
         switch self {
-        case .purchase:
-            return .green
-        case .sale:
-            return .red
-        case .ignore:
-            return .yellow
+        case .purchase: return .green
+        case .sale: return .red
+        case .ignore: return .yellow
         }
     }
-    
+
     var description: String {
         switch self {
-        case .purchase:
-            return "Покупка"
-        case .sale:
-            return "Продажа"
-        case .ignore:
-            return "Игнор"
+        case .purchase: return "Покупка"
+        case .sale: return "Продажа"
+        case .ignore: return "Игнор"
         }
     }
 }
@@ -50,14 +38,14 @@ struct Trade {
     let profitLoss: Double?
     let isPositionOpen: Bool
     let buyPrice: Double?
-    
+
     var mainInfo: String {
-        return "\(type.description) по \(price.asCurrency) \(currency)"
+        "\(type.description) по \(price.asCurrency) \(currency)"
     }
-    
+
     var additionalInfo: String? {
         guard type != .ignore else { return nil }
-        
+
         var info = ""
         if let buyPrice = buyPrice {
             info += "Куплено по: \(buyPrice.asCurrency)\n"
@@ -70,157 +58,128 @@ struct Trade {
         }
         return info.isEmpty ? nil : info
     }
-}
 
-private protocol BotProtocol {
-    var name: String { get set }
-    func makeName() -> String
+    static func make(
+        type: TradeType,
+        price: Double,
+        currency: String,
+        balance: Double? = nil,
+        profitLoss: Double? = nil,
+        isPositionOpen: Bool,
+        buyPrice: Double? = nil
+    ) -> Trade {
+        Trade(
+            type: type,
+            price: price,
+            currency: currency,
+            balance: balance,
+            profitLoss: profitLoss,
+            isPositionOpen: isPositionOpen,
+            buyPrice: buyPrice
+        )
+    }
 }
 
 protocol MoneyProtocol {
     var balance: Double { get }
     var currency: String { get }
     var formattedBalance: String { get }
-    
+
     func startTrading() -> [Trade]
     func generateRandomCurrency()
     func generateRandomPrice()
 }
 
 final class Money: MoneyProtocol {
-    
-    let currencyVc = CurrencySelectionViewController()
-    
+
     private enum Choice: Int, CaseIterable {
         case purchase = 1
         case sale = 2
         case ignore = 0
-        
+
         var description: String {
             switch self {
-            case .purchase:
-                return "покупка"
-            case .sale:
-                return "продажа"
-            case .ignore:
-                return "игнор"
+            case .purchase: return "покупка"
+            case .sale: return "продажа"
+            case .ignore: return "игнор"
             }
         }
     }
-    
+
     private(set) var balance: Double
     private(set) var currency: String
     private(set) var isPositionOpen = false
     private(set) var buyPrice: Double = 0
     private(set) var price: Double
     private var choice: Choice
-    
+
     var formattedBalance: String {
-        return "\(balance.asCurrency) \(currency)"
+        "\(balance.asCurrency) \(currency)"
     }
-    
+
     var formattedPrice: String {
-        return "\(price.asCurrency) \(currency)"
+        "\(price.asCurrency) \(currency)"
     }
-    
+
     var profitLoss: Double? {
         guard isPositionOpen else { return nil }
         return price - buyPrice
     }
-    
+
     var positionStatus: String {
-        return isPositionOpen ? "Открыта (куплено по \(buyPrice.asCurrency))" : "Закрыта"
+        isPositionOpen ? "Открыта (куплено по \(buyPrice.asCurrency))" : "Закрыта"
     }
-    
+
     init(balance: Double) {
         self.balance = balance
         self.price = Double.random(in: 1000...50000)
         self.currency = ""
         self.choice = .ignore
     }
-    
+
     func startTrading() -> [Trade] {
         var allTrades: [Trade] = []
-        
         generateRandomCurrency()
-        
         for _ in 0..<10 {
             allTrades.append(contentsOf: performTradeCycle())
         }
         return allTrades
     }
-    
+
     private func performTradeCycle() -> [Trade] {
-        var trades: [Trade] = []
-        
         generateRandomPrice()
-        
-        if !isPositionOpen {
-            trades.append(contentsOf: handleClosedPosition())
-        } else {
-            trades.append(contentsOf: handleOpenPosition())
-        }
-        return trades
+        return isPositionOpen ? handleOpenPosition() : handleClosedPosition()
     }
-    
+
     private func handleClosedPosition() -> [Trade] {
-        var trades: [Trade] = []
         choice = Choice.allCases.randomElement() ?? .ignore
-        
+
         switch choice {
         case .ignore:
-            let trade = Trade(
-                type: .ignore,
-                price: price,
-                currency: currency,
-                balance: nil,
-                profitLoss: nil,
-                isPositionOpen: false,
-                buyPrice: nil
-            )
-            trades.append(trade)
-            
+            return [
+                .make(type: .ignore, price: price, currency: currency, isPositionOpen: false, buyPrice: nil)
+            ]
         case .purchase:
             buyPrice = price
             isPositionOpen = true
-            let trade = Trade(
-                type: .purchase,
-                price: price,
-                currency: currency,
-                balance: balance,
-                profitLoss: nil,
-                isPositionOpen: true,
-                buyPrice: buyPrice
-            )
-            trades.append(trade)
-            
+            return [
+                .make(type: .purchase, price: price, currency: currency, balance: balance, isPositionOpen: true, buyPrice: buyPrice)
+            ]
         case .sale:
-            let trade = Trade(
-                type: .ignore,
-                price: price,
-                currency: currency,
-                balance: nil,
-                profitLoss: nil,
-                isPositionOpen: false,
-                buyPrice: nil
-            )
-            trades.append(trade)
+            return [
+                .make(type: .ignore, price: price, currency: currency, isPositionOpen: false, buyPrice: nil)
+            ]
         }
-        return trades
     }
-    
+
     private func handleOpenPosition() -> [Trade] {
-        var trades: [Trade] = []
-        
         choice = Choice.allCases.randomElement() ?? .ignore
-        
+
         switch choice {
         case .sale:
-            let sellPrice = price
-            let income = sellPrice - buyPrice
+            let income = price - buyPrice
             balance += income
-            
-            let trade = Trade(
+            let trade = Trade.make(
                 type: .sale,
                 price: price,
                 currency: currency,
@@ -229,60 +188,45 @@ final class Money: MoneyProtocol {
                 isPositionOpen: false,
                 buyPrice: buyPrice
             )
-            trades.append(trade)
             isPositionOpen = false
-            
+            return [trade]
+
         case .purchase:
-            let trade = Trade(
-                type: .ignore,
-                price: price,
-                currency: currency,
-                balance: nil,
-                profitLoss: nil,
-                isPositionOpen: true,
-                buyPrice: buyPrice
-            )
-            trades.append(trade)
-            
+            return [
+                .make(type: .ignore, price: price, currency: currency, isPositionOpen: true, buyPrice: buyPrice)
+            ]
+
         case .ignore:
-            let trade = Trade(
-                type: .ignore,
-                price: price,
-                currency: currency,
-                balance: nil,
-                profitLoss: profitLoss,
-                isPositionOpen: true,
-                buyPrice: buyPrice
-            )
-            trades.append(trade)
+            return [
+                .make(type: .ignore, price: price, currency: currency, profitLoss: profitLoss, isPositionOpen: true, buyPrice: buyPrice)
+            ]
         }
-        return trades
     }
-    
+
     func generateRandomCurrency() {
-        let currencyList = currencyVc.items
-        self.currency = currencyList.randomElement() ?? "RUB"
+        let codes = CurrencySelectionViewController.tradingCurrencyCodes
+        currency = codes.randomElement() ?? "RUB"
     }
-    
+
     func generateRandomPrice() {
-        self.price = Double.random(in: 1000...50000)
+        price = Double.random(in: 1000...50000)
     }
 }
 
-struct Bot: BotProtocol {
+struct Bot {
     private let nameList = ["Bob", "Nikita", "Danil", "Alice", "Barmaldak"]
-    
-    var name = String()
-    
+
+    var name = ""
+
     var greeting: String {
-        return "Вас приветствует \(name) бот"
+        "Вас приветствует \(name) бот"
     }
-    
+
     func makeName() -> String {
-        return nameList.randomElement() ?? "GPT"
+        nameList.randomElement() ?? "GPT"
     }
-    
+
     func sendGreeting() -> String {
-        return greeting
+        greeting
     }
 }

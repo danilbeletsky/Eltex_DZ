@@ -10,8 +10,6 @@ final class ShortCurrencySelectionViewController: UIViewController {
     private let allButton = UIButton(type: .system)
     private var collectionView: UICollectionView!
     
-    private let currencyObj = CurrencySelectionViewController()
-    
     private var popularCurrencies = ["USD", "BTC"]
     private var isEditingFirstCurrency = true
     private var fixedPopularCurrencies: [String] = []
@@ -50,7 +48,7 @@ final class ShortCurrencySelectionViewController: UIViewController {
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
-        collectionView.register(MyCell.self, forCellWithReuseIdentifier: MyCell.identifire)
+        collectionView.register(MyCell.self, forCellWithReuseIdentifier: MyCell.reuseIdentifier)
         collectionView.dataSource = self
         collectionView.delegate = self
         
@@ -89,7 +87,7 @@ final class ShortCurrencySelectionViewController: UIViewController {
     
     private func generateFixedPopularCurrencies() {
         // Создаем копию всех доступных валют
-        var allCurrencies = currencyObj.items
+        var allCurrencies = CurrencySelectionViewController.tradingCurrencyCodes
         
         // Начинаем с текущей пары валют
         var newPopularCurrencies: [String] = []
@@ -154,7 +152,7 @@ extension ShortCurrencySelectionViewController: UICollectionViewDataSource, UICo
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: MyCell.identifire,
+            withReuseIdentifier: MyCell.reuseIdentifier,
             for: indexPath
         ) as? MyCell else {
             return UICollectionViewCell()
