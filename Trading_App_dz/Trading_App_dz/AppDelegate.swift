@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  Trading_App_dz_10
+//  Trading_App_dz
 //
-//  Created by Данил Белецкий on 09.04.2026.
+//  Created by Данил Белецкий on 14.04.2026.
 //
 
 import UIKit

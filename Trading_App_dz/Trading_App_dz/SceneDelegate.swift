@@ -8,14 +8,14 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = createRootController()
+        window?.rootViewController = createRootConstroller()
         
         window?.makeKeyAndVisible()
     }
 }
 
 private extension SceneDelegate {
-    func createRootController() -> UITabBarController {
+    func createRootConstroller() -> UITabBarController {
         let tabBarController = UITabBarController()
         
         let chatViewController = ChatViewController()
@@ -28,10 +28,14 @@ private extension SceneDelegate {
         let chatNavigationController = UINavigationController(rootViewController: chatViewController)
         
         let chartsViewController = ChartsViewController()
-        chartsViewController.title = "Charts"
-        chartsViewController.tabBarItem = UITabBarItem(title: "Charts", image: UIImage(systemName: "graph.2d"), tag: 1)
+        chartsViewController.title = "Charts Candles"
+        chartsViewController.tabBarItem = UITabBarItem(title: "Charts Candles", image: UIImage(systemName: "graph.2d"), tag: 1)
         
-        tabBarController.viewControllers = [chartsViewController, chatNavigationController]
+        let chartsGrafViewController = ChartsGrafViewController()
+        chartsGrafViewController.title = "Charts Candles"
+        chartsGrafViewController.tabBarItem = UITabBarItem(title: "Charts Graf", image: UIImage(systemName: "graph.3d"), tag: 2)
+        
+        tabBarController.viewControllers =  [chartsViewController, chartsGrafViewController, chatNavigationController]
         
         return tabBarController
     }

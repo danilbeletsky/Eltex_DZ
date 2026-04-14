@@ -13,7 +13,7 @@ final class ChartsViewController: UIViewController {
     private let highLabel = UILabel()
     private let lowLabel = UILabel()
 
-    private var candles: [CandleData] = []
+    static var candles: [CandleData] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +24,7 @@ final class ChartsViewController: UIViewController {
         generateCandles()
         collectionView.reloadData()
 
-        if let firstCandle = candles.first {
+        if let firstCandle = Self.candles.first {
             showDetails(for: firstCandle)
         }
     }
@@ -122,7 +122,6 @@ final class ChartsViewController: UIViewController {
 
     private func generateCandles() {
         var candlesToBuild: [CandleData] = []
-        
         for _ in 0..<28 {
             let open = Double.random(in: 80...120)
             let close = open + Double.random(in: -15...15)
@@ -139,7 +138,7 @@ final class ChartsViewController: UIViewController {
             )
         }
 
-        candles = candlesToBuild
+        Self.candles = candlesToBuild
     }
     
     private func showDetails(for candle: CandleData) {
@@ -164,7 +163,7 @@ final class ChartsViewController: UIViewController {
     }
 }
 
-private struct CandleData {
+struct CandleData {
     let open: Double
     let close: Double
     let high: Double
@@ -292,7 +291,7 @@ private final class CandleCell: UICollectionViewCell {
 
 extension ChartsViewController: UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        candles.count
+        Self.candles.count
     }
 
     func collectionView( _ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath ) -> UICollectionViewCell {
@@ -303,7 +302,7 @@ extension ChartsViewController: UICollectionViewDataSource, UICollectionViewDele
             return UICollectionViewCell()
         }
 
-        let candle = candles[indexPath.item]
+        let candle = Self.candles[indexPath.item]
         cell.configure(
             candle: candle,
             onTap: { [weak self] in

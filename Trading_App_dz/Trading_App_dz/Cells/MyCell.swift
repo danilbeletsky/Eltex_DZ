@@ -6,7 +6,7 @@ protocol MyCellDelegate: AnyObject {
 
 final class MyCell: UICollectionViewCell {
     // MARK: - UI Elements
-    static let reuseIdentifier = "MyCell"
+    static let identifire = "MyCell"
     
     weak var delegate: MyCellDelegate?
     private var currentCurrency: String = ""

@@ -4,7 +4,8 @@ final class ChatViewController: UIViewController {
     
     // MARK: - UI Components
     private let runButton = UIButton()
-    private let chartButton = UIButton()
+    private let chartCandlesButton = UIButton()
+    private let chartGrafButton = UIButton()
     private let stackRun = UIStackView()
     private let tableView = UITableView()
     
@@ -62,7 +63,7 @@ final class ChatViewController: UIViewController {
     @objc private func randomizePair() {
         guard allCurrencies.count >= 2 else { return }
         
-        var from = allCurrencies.randomElement() ?? "USD"
+        let from = allCurrencies.randomElement() ?? "USD"
         var to = allCurrencies.randomElement() ?? "BTC"
         
         while from == to {
@@ -74,10 +75,16 @@ final class ChatViewController: UIViewController {
         showEmptyState()
     }
 
-    @objc private func openChartsScreen() {
+    @objc private func openChartsScreenCandles() {
         let chartsViewController = ChartsViewController()
         chartsViewController.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(chartsViewController, animated: true)
+    }
+    
+    @objc private func openChartsScreenGraf() {
+        let chartsGrafViewController = ChartsGrafViewController()
+        chartsGrafViewController.hidesBottomBarWhenPushed = true
+        navigationController?.pushViewController(chartsGrafViewController, animated: true)
     }
     
     // MARK: - Private Methods
@@ -174,7 +181,8 @@ private extension ChatViewController {
         view.backgroundColor = .white
         
         runButton.translatesAutoresizingMaskIntoConstraints = false
-        chartButton.translatesAutoresizingMaskIntoConstraints = false
+        chartCandlesButton.translatesAutoresizingMaskIntoConstraints = false
+        chartGrafButton.translatesAutoresizingMaskIntoConstraints = false
         stackRun.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -204,7 +212,7 @@ private extension ChatViewController {
             image: UIImage(systemName: "chart.line.uptrend.xyaxis"),
             style: .plain,
             target: self,
-            action: #selector(openChartsScreen)
+            action: #selector(openChartsScreenCandles)
         )
 
         navigationItem.rightBarButtonItems = [randomButton, chartButtonItem]
@@ -251,7 +259,8 @@ private extension ChatViewController {
         
         stackRun.addSubview(runButton)
         stackRun.addSubview(pairContainerView)
-        stackRun.addSubview(chartButton)
+        stackRun.addSubview(chartCandlesButton)
+        stackRun.addSubview(chartGrafButton)
         
         pairContainerView.addSubview(pairTitleLabel)
         pairContainerView.addSubview(fromCurrencyLabel)
@@ -261,48 +270,45 @@ private extension ChatViewController {
     
     func makeConstraints() {
         NSLayoutConstraint.activate([
-            // Stack Run
             stackRun.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             stackRun.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackRun.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             stackRun.heightAnchor.constraint(equalToConstant: 350),
             
-            // Run Button
             runButton.topAnchor.constraint(equalTo: stackRun.topAnchor, constant: 12),
             runButton.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 20),
             runButton.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -20),
             runButton.heightAnchor.constraint(equalToConstant: 50),
             
-            // Table View
             tableView.topAnchor.constraint(equalTo: stackRun.bottomAnchor, constant: 16),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
-            // Pair Container
             pairContainerView.topAnchor.constraint(equalTo: runButton.bottomAnchor, constant: 30),
             pairContainerView.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 16),
             pairContainerView.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -16),
             pairContainerView.heightAnchor.constraint(equalToConstant: 80),
 
-            chartButton.topAnchor.constraint(equalTo: pairContainerView.bottomAnchor, constant: 20),
-            chartButton.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 20),
-            chartButton.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -20),
-            chartButton.heightAnchor.constraint(equalToConstant: 50),
+            chartCandlesButton.topAnchor.constraint(equalTo: pairContainerView.bottomAnchor, constant: 20),
+            chartCandlesButton.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 20),
+            chartCandlesButton.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -20),
+            chartCandlesButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            chartGrafButton.topAnchor.constraint(equalTo: chartCandlesButton.bottomAnchor, constant: 20),
+            chartGrafButton.leadingAnchor.constraint(equalTo: stackRun.leadingAnchor, constant: 20),
+            chartGrafButton.trailingAnchor.constraint(equalTo: stackRun.trailingAnchor, constant: -20),
+            chartGrafButton.heightAnchor.constraint(equalToConstant: 50),
 
-            // Pair Title
             pairTitleLabel.topAnchor.constraint(equalTo: pairContainerView.topAnchor, constant: 8),
             pairTitleLabel.leadingAnchor.constraint(equalTo: pairContainerView.leadingAnchor, constant: 12),
 
-            // From Currency
             fromCurrencyLabel.leadingAnchor.constraint(equalTo: pairContainerView.leadingAnchor, constant: 12),
             fromCurrencyLabel.bottomAnchor.constraint(equalTo: pairContainerView.bottomAnchor, constant: -10),
 
-            // Separator
             separatorLabel.leadingAnchor.constraint(equalTo: fromCurrencyLabel.trailingAnchor, constant: 8),
             separatorLabel.centerYAnchor.constraint(equalTo: fromCurrencyLabel.centerYAnchor),
 
-            // To Currency
             toCurrencyLabel.leadingAnchor.constraint(equalTo: separatorLabel.trailingAnchor, constant: 8),
             toCurrencyLabel.centerYAnchor.constraint(equalTo: fromCurrencyLabel.centerYAnchor),
         ])
@@ -315,11 +321,17 @@ private extension ChatViewController {
         runButton.layer.cornerRadius = 12
         runButton.addTarget(self, action: #selector(run), for: .touchUpInside)
 
-        chartButton.setTitle("График", for: .normal)
-        chartButton.setTitleColor(.white, for: .normal)
-        chartButton.backgroundColor = .systemBlue
-        chartButton.layer.cornerRadius = 12
-        chartButton.addTarget(self, action: #selector(openChartsScreen), for: .touchUpInside)
+        chartCandlesButton.setTitle("Свечи", for: .normal)
+        chartCandlesButton.setTitleColor(.white, for: .normal)
+        chartCandlesButton.backgroundColor = .systemBlue
+        chartCandlesButton.layer.cornerRadius = 12
+        chartCandlesButton.addTarget(self, action: #selector(openChartsScreenCandles), for: .touchUpInside)
+        
+        chartGrafButton.setTitle("График", for: .normal)
+        chartGrafButton.setTitleColor(.white, for: .normal)
+        chartGrafButton.backgroundColor = .systemBlue
+        chartGrafButton.layer.cornerRadius = 12
+        chartGrafButton.addTarget(self, action: #selector(openChartsScreenGraf), for: .touchUpInside)
     }
     
     func updatePairUI() {
@@ -343,7 +355,16 @@ private extension ChatViewController {
 
     func setupSwipeToOpenChart() {
         [view, stackRun, tableView].forEach { targetView in
-            let swipeUpGesture = UISwipeGestureRecognizer(target: self, action: #selector(openChartsScreen))
+            let swipeUpGesture = UISwipeGestureRecognizer(target: self, action: #selector(openChartsScreenCandles))
+            swipeUpGesture.direction = .up
+            swipeUpGesture.cancelsTouchesInView = false
+            targetView.addGestureRecognizer(swipeUpGesture)
+        }
+    }
+    
+    func setupSwipeToOpenChartGraf() {
+        [view, stackRun, tableView].forEach { targetView in
+            let swipeUpGesture = UISwipeGestureRecognizer(target: self, action: #selector(openChartsScreenGraf))
             swipeUpGesture.direction = .up
             swipeUpGesture.cancelsTouchesInView = false
             targetView.addGestureRecognizer(swipeUpGesture)
