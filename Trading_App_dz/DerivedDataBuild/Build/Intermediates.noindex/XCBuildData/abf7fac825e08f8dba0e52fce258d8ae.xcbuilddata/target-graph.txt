@@ -1,0 +1,2 @@
+Target dependency graph (1 target)
+Target 'Trading_App_dz' in project 'Trading_App_dz' (no dependencies)
