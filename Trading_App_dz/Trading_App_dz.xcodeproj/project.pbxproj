@@ -6,6 +6,7 @@
 	objectVersion = 77;
 	objects = {
 
+<<<<<<< HEAD
 /* Begin PBXContainerItemProxy section */
 		728944172FB794580088FDF3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -19,6 +20,10 @@
 /* Begin PBXFileReference section */
 		724A863F2F8E520E004534FB /* Trading_App_dz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trading_App_dz.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		728944132FB794580088FDF3 /* Trading_App_dzTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Trading_App_dzTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+=======
+/* Begin PBXFileReference section */
+		724A863F2F8E520E004534FB /* Trading_App_dz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trading_App_dz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -40,11 +45,14 @@
 			path = Trading_App_dz;
 			sourceTree = "<group>";
 		};
+<<<<<<< HEAD
 		728944142FB794580088FDF3 /* Trading_App_dzTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Trading_App_dzTests;
 			sourceTree = "<group>";
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,6 +63,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+<<<<<<< HEAD
 		728944102FB794580088FDF3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -62,6 +71,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -69,7 +80,10 @@
 			isa = PBXGroup;
 			children = (
 				724A86412F8E520E004534FB /* Trading_App_dz */,
+<<<<<<< HEAD
 				728944142FB794580088FDF3 /* Trading_App_dzTests */,
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 				724A86402F8E520E004534FB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,7 +92,10 @@
 			isa = PBXGroup;
 			children = (
 				724A863F2F8E520E004534FB /* Trading_App_dz.app */,
+<<<<<<< HEAD
 				728944132FB794580088FDF3 /* Trading_App_dzTests.xctest */,
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -108,6 +125,7 @@
 			productReference = 724A863F2F8E520E004534FB /* Trading_App_dz.app */;
 			productType = "com.apple.product-type.application";
 		};
+<<<<<<< HEAD
 		728944122FB794580088FDF3 /* Trading_App_dzTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7289441B2FB794580088FDF3 /* Build configuration list for PBXNativeTarget "Trading_App_dzTests" */;
@@ -131,6 +149,8 @@
 			productReference = 728944132FB794580088FDF3 /* Trading_App_dzTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -144,10 +164,13 @@
 					724A863E2F8E520E004534FB = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
+<<<<<<< HEAD
 					728944122FB794580088FDF3 = {
 						CreatedOnToolsVersion = 26.0.1;
 						TestTargetID = 724A863E2F8E520E004534FB;
 					};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 				};
 			};
 			buildConfigurationList = 724A863A2F8E520E004534FB /* Build configuration list for PBXProject "Trading_App_dz" */;
@@ -165,7 +188,10 @@
 			projectRoot = "";
 			targets = (
 				724A863E2F8E520E004534FB /* Trading_App_dz */,
+<<<<<<< HEAD
 				728944122FB794580088FDF3 /* Trading_App_dzTests */,
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 			);
 		};
 /* End PBXProject section */
@@ -178,6 +204,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+<<<<<<< HEAD
 		728944112FB794580088FDF3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -185,6 +212,8 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -195,6 +224,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+<<<<<<< HEAD
 		7289440F2FB794580088FDF3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -212,6 +242,10 @@
 		};
 /* End PBXTargetDependency section */
 
+=======
+/* End PBXSourcesBuildPhase section */
+
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* Begin XCBuildConfiguration section */
 		724A86532F8E520F004534FB /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -396,6 +430,7 @@
 			};
 			name = Release;
 		};
+<<<<<<< HEAD
 		728944192FB794580088FDF3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -438,6 +473,8 @@
 			};
 			name = Release;
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -459,6 +496,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+<<<<<<< HEAD
 		7289441B2FB794580088FDF3 /* Build configuration list for PBXNativeTarget "Trading_App_dzTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -468,6 +506,8 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 /* End XCConfigurationList section */
 	};
 	rootObject = 724A86372F8E520E004534FB /* Project object */;

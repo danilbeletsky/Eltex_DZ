@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import Combine
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
 import Foundation
 import UIKit
 
@@ -50,7 +53,11 @@ struct TradingConfig {
     static let topUpAmount: Double = 1_000
 }
 
+<<<<<<< HEAD
 nonisolated(unsafe) final class Wallet {
+=======
+final class Wallet {
+>>>>>>> parent of a886af4 (delete_dz_14)
     private var balances: [String: Double]
     private var credit: [String: Double] = [:]
     private let queue = DispatchQueue(label: "wallet.queue.concurrent", attributes: .concurrent)
@@ -170,6 +177,7 @@ enum BotRunner {
         }
     }
 }
+<<<<<<< HEAD
 
 enum NetworkServiceError: Error {
     case noInternet
@@ -414,3 +422,5 @@ private struct CoinbaseResponse: Decodable {
 private struct CoinbaseRatesContainer: Decodable {
     let rates: [String: String]
 }
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)

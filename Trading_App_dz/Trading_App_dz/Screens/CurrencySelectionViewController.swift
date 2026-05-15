@@ -20,7 +20,12 @@ final class CurrencySelectionViewController: UIViewController {
     
     private let favoriteFilterView = FavoriteFilterView()
     private let filterSegmentedControl = UISegmentedControl(items: ["Все", "Фиат", "Крипта"])
+<<<<<<< HEAD
     private let dataSourceSegmentedControl = UISegmentedControl(items: ["Локальные", "Только API"])
+=======
+    private let apiOnlySwitch = UISwitch()
+    private let apiOnlyLabel = UILabel()
+>>>>>>> parent of a886af4 (delete_dz_14)
     
     private let emptyStateLabel: UILabel = {
         let label = UILabel()
@@ -47,10 +52,18 @@ final class CurrencySelectionViewController: UIViewController {
     private var timeRemaining: Int = 5
     private var collectionView: UICollectionView!
     private var filteredItems: [String] = []
+<<<<<<< HEAD
     var apiCurrencies: [String] = []
     
     weak var delegate: CurrencySelectionViewControllerDelegate?
     var currentPair: CurrencyPair = CurrencyPair(from: "USD", to: "BTC")
+=======
+    
+    weak var delegate: CurrencySelectionViewControllerDelegate?
+    var currentPair: CurrencyPair = CurrencyPair(from: "USD", to: "BTC")
+    var apiCurrencies: [String] = []
+    var isAPIModeOnly = false
+>>>>>>> parent of a886af4 (delete_dz_14)
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -60,11 +73,17 @@ final class CurrencySelectionViewController: UIViewController {
         view.backgroundColor = .white
         
         loadFavorites()
+<<<<<<< HEAD
         filteredItems = items
         setupUI()
         updateFilteredItems()
         collectionView.reloadData()
         updateEmptyState()
+=======
+        apiOnlySwitch.isOn = isAPIModeOnly
+        filteredItems = currentItemsSource()
+        setupUI()
+>>>>>>> parent of a886af4 (delete_dz_14)
         
         selectedCurrenciesLabelFirst.text = currentPair.from
         selectedCurrenciesLabelSecond.text = currentPair.to
@@ -79,7 +98,10 @@ final class CurrencySelectionViewController: UIViewController {
         setupFavoriteFilter()
         setupCollectionView()
         setuorateLabel()
+<<<<<<< HEAD
         setupDataSourceFilter()
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
         setupFilter()
         setupConversionUI()
         addSubviews()
@@ -94,11 +116,20 @@ final class CurrencySelectionViewController: UIViewController {
     func setupFilter() {
         filterSegmentedControl.selectedSegmentIndex = 0
         filterSegmentedControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
+<<<<<<< HEAD
     }
 
     func setupDataSourceFilter() {
         dataSourceSegmentedControl.selectedSegmentIndex = 0
         dataSourceSegmentedControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
+=======
+        apiOnlySwitch.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
+        apiOnlyLabel.text = "Только данные API"
+        apiOnlyLabel.font = .systemFont(ofSize: 13, weight: .medium)
+        let canUseApi = !apiCurrencies.isEmpty
+        apiOnlySwitch.isHidden = !canUseApi
+        apiOnlyLabel.isHidden = !canUseApi
+>>>>>>> parent of a886af4 (delete_dz_14)
     }
     // MARK: Setuup Conversion
     func setupConversionUI() {
@@ -204,15 +235,25 @@ final class CurrencySelectionViewController: UIViewController {
         collectionView.backgroundColor = .darkGray
         collectionView.dataSource = self
         collectionView.delegate = self
+<<<<<<< HEAD
         collectionView.register(Currency.self, forCellWithReuseIdentifier: Currency.identifire)
+=======
+        collectionView.register(MyCell.self, forCellWithReuseIdentifier: MyCell.identifire)
+>>>>>>> parent of a886af4 (delete_dz_14)
     }
     
     // MARK: Layout
     func addSubviews() {
         view.addSubview(viewHeader)
         view.addSubview(favoriteFilterView)
+<<<<<<< HEAD
         view.addSubview(dataSourceSegmentedControl)
         view.addSubview(filterSegmentedControl)
+=======
+        view.addSubview(filterSegmentedControl)
+        view.addSubview(apiOnlyLabel)
+        view.addSubview(apiOnlySwitch)
+>>>>>>> parent of a886af4 (delete_dz_14)
         view.addSubview(collectionView)
         view.addSubview(emptyStateLabel)
         
@@ -231,7 +272,12 @@ final class CurrencySelectionViewController: UIViewController {
         viewHeader.translatesAutoresizingMaskIntoConstraints = false
         favoriteFilterView.translatesAutoresizingMaskIntoConstraints = false
         filterSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+<<<<<<< HEAD
         dataSourceSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+=======
+        apiOnlySwitch.translatesAutoresizingMaskIntoConstraints = false
+        apiOnlyLabel.translatesAutoresizingMaskIntoConstraints = false
+>>>>>>> parent of a886af4 (delete_dz_14)
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         selectedCurrenciesLabelFirst.translatesAutoresizingMaskIntoConstraints = false
         selectedCurrenciesLabelSecond.translatesAutoresizingMaskIntoConstraints = false
@@ -256,6 +302,7 @@ final class CurrencySelectionViewController: UIViewController {
             favoriteFilterView.heightAnchor.constraint(equalToConstant: 50),
             
             // Type Filter
+<<<<<<< HEAD
             dataSourceSegmentedControl.topAnchor.constraint(equalTo: favoriteFilterView.bottomAnchor, constant: 10),
             dataSourceSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             dataSourceSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
@@ -266,6 +313,18 @@ final class CurrencySelectionViewController: UIViewController {
             filterSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             filterSegmentedControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             filterSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
+=======
+            filterSegmentedControl.topAnchor.constraint(equalTo: favoriteFilterView.bottomAnchor, constant: 10),
+            filterSegmentedControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            filterSegmentedControl.trailingAnchor.constraint(equalTo: apiOnlyLabel.leadingAnchor, constant: -8),
+            filterSegmentedControl.heightAnchor.constraint(equalToConstant: 32),
+
+            apiOnlySwitch.centerYAnchor.constraint(equalTo: filterSegmentedControl.centerYAnchor),
+            apiOnlySwitch.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+
+            apiOnlyLabel.centerYAnchor.constraint(equalTo: apiOnlySwitch.centerYAnchor),
+            apiOnlyLabel.trailingAnchor.constraint(equalTo: apiOnlySwitch.leadingAnchor, constant: -8),
+>>>>>>> parent of a886af4 (delete_dz_14)
             
             // Collection
             collectionView.topAnchor.constraint(equalTo: filterSegmentedControl.bottomAnchor, constant: 10),
@@ -361,7 +420,10 @@ final class CurrencySelectionViewController: UIViewController {
         } else {
             isEditingFirstCurrency = false
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
         updateActiveCurrencyHighlight()
     }
     
@@ -427,6 +489,7 @@ final class CurrencySelectionViewController: UIViewController {
     
     // MARK: Filters
     func updateFilteredItems() {
+<<<<<<< HEAD
         let typeIndex = filterSegmentedControl.selectedSegmentIndex
         let sourceItems: [String]
         if dataSourceSegmentedControl.selectedSegmentIndex == 1 {
@@ -434,6 +497,10 @@ final class CurrencySelectionViewController: UIViewController {
         } else {
             sourceItems = items
         }
+=======
+        let sourceItems = currentItemsSource()
+        let typeIndex = filterSegmentedControl.selectedSegmentIndex
+>>>>>>> parent of a886af4 (delete_dz_14)
         var typeFiltered: [String]
         
         switch typeIndex {
@@ -451,6 +518,16 @@ final class CurrencySelectionViewController: UIViewController {
             filteredItems = typeFiltered
         }
     }
+<<<<<<< HEAD
+=======
+
+    func currentItemsSource() -> [String] {
+        if apiOnlySwitch.isOn && !apiCurrencies.isEmpty {
+            return apiCurrencies.sorted()
+        }
+        return items
+    }
+>>>>>>> parent of a886af4 (delete_dz_14)
     
     func updateEmptyState() {
         if favoriteFilterView.isFilterEnabled && filteredItems.isEmpty {
@@ -487,7 +564,10 @@ final class CurrencySelectionViewController: UIViewController {
             favoritesCurrencies = Set(savedFavorites)
         }
     }
+<<<<<<< HEAD
     
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
     deinit {
         timer?.invalidate()
     }
@@ -501,8 +581,13 @@ extension CurrencySelectionViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(
+<<<<<<< HEAD
             withReuseIdentifier: Currency.identifire,
             for: indexPath) as? Currency else { return UICollectionViewCell() }
+=======
+            withReuseIdentifier: MyCell.identifire,
+            for: indexPath) as? MyCell else { return UICollectionViewCell() }
+>>>>>>> parent of a886af4 (delete_dz_14)
         
         let currency = filteredItems[indexPath.item]
         
@@ -521,7 +606,10 @@ extension CurrencySelectionViewController: UICollectionViewDataSource {
         } else {
             cell.alpha = 1.0
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
         cell.layer.cornerRadius = 12
         return cell
     }
@@ -547,7 +635,10 @@ extension CurrencySelectionViewController: UICollectionViewDelegate {
                 return
             }
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
         updateRate()
         notifyAboutPairChange()
         animateSelection(for: indexPath)
@@ -576,13 +667,20 @@ extension CurrencySelectionViewController: UICollectionViewDelegate {
 
 // MARK: - MyCellDelegate
 extension CurrencySelectionViewController: MyCellDelegate {
+<<<<<<< HEAD
     func didTapFavoriteButton(in cell: Currency, for currency: String) {
+=======
+    func didTapFavoriteButton(in cell: MyCell, for currency: String) {
+>>>>>>> parent of a886af4 (delete_dz_14)
         if favoritesCurrencies.contains(currency) {
             favoritesCurrencies.remove(currency)
         } else {
             favoritesCurrencies.insert(currency)
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> parent of a886af4 (delete_dz_14)
         saveFavorites()
         updateFilteredItems()
         collectionView.reloadData()
