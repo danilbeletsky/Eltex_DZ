@@ -9,8 +9,11 @@ class KeychainService {
     private init() {}
     
     func save(key: String, value: String) -> Bool {
-        guard let data = value.data(using: .utf8) else { return false }
-        
+        guard let data = value.data(using: .utf8) else {
+            AppLogger.auth("Не удалось закодировать значение для Keychain", level: .error, metadata: ["key": key])
+            return false
+        }
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -21,7 +24,17 @@ class KeychainService {
         SecItemDelete(query as CFDictionary)
         
         let status = SecItemAdd(query as CFDictionary, nil)
-        return status == errSecSuccess
+        let success = status == errSecSuccess
+        if success {
+            AppLogger.auth("Значение сохранено в Keychain", level: .info, metadata: ["key": key])
+        } else {
+            AppLogger.auth(
+                "Ошибка сохранения в Keychain",
+                level: .error,
+                metadata: ["key": key, "status": "\(status)"]
+            )
+        }
+        return success
     }
     
     func get(key: String) -> String? {
@@ -39,8 +52,14 @@ class KeychainService {
         if status == errSecSuccess,
            let data = result as? Data,
            let value = String(data: data, encoding: .utf8) {
+            AppLogger.auth("Значение прочитано из Keychain", level: .debug, metadata: ["key": key])
             return value
         }
+        AppLogger.auth(
+            "Значение в Keychain не найдено или ошибка чтения",
+            level: status == errSecItemNotFound ? .info : .warning,
+            metadata: ["key": key, "status": "\(status)"]
+        )
         return nil
     }
     
@@ -52,6 +71,12 @@ class KeychainService {
         ]
         
         let status = SecItemDelete(query as CFDictionary)
-        return status == errSecSuccess
+        let success = status == errSecSuccess || status == errSecItemNotFound
+        AppLogger.auth(
+            success ? "Запись Keychain удалена" : "Ошибка удаления из Keychain",
+            level: success ? .info : .warning,
+            metadata: ["key": key, "status": "\(status)"]
+        )
+        return success
     }
 }

@@ -1,0 +1,23 @@
+{
+  "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/Trading_App_dz/Cells/TextChatMessageCell.swift" : {
+    "const-values" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/TextChatMessageCell.swiftconstvalues",
+    "dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/TextChatMessageCell.d",
+    "diagnostics" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/TextChatMessageCell.dia",
+    "object" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/TextChatMessageCell.o",
+    "swift-dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/TextChatMessageCell.swiftdeps"
+  },
+  "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/Trading_App_dz/Cells/UserModel.swift" : {
+    "const-values" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/UserModel.swiftconstvalues",
+    "dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/UserModel.d",
+    "diagnostics" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/UserModel.dia",
+    "object" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/UserModel.o",
+    "swift-dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/UserModel.swiftdeps"
+  },
+  "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/Trading_App_dz/Coordinators/AppCoordinator.swift" : {
+    "const-values" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/AppCoordinator.swiftconstvalues",
+    "dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/AppCoordinator.d",
+    "diagnostics" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/AppCoordinator.dia",
+    "object" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/AppCoordinator.o",
+    "swift-dependencies" : "/Users/danilbeletsky/Desktop/Eltex_DZ/Trading_App_dz/DerivedDataBuild/Build/Intermediates.noindex/Trading_App_dz.build/Debug-iphonesimulator/Trading_App_dz.build/Objects-normal/x86_64/AppCoordinator.swiftdeps"
+  }
+}
