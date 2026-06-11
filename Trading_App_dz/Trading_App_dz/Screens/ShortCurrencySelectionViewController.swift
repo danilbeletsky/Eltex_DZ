@@ -3,6 +3,7 @@ import UIKit
 final class ShortCurrencySelectionViewController: UIViewController {
     
     weak var delegate: CurrencySelectionViewControllerDelegate?
+    var onOpenFullList: ((CurrencyPair, CurrencySelectionViewControllerDelegate) -> Void)?
     var currentPair: CurrencyPair = CurrencyPair(from: "USD", to: "BTC")
     
     private let titleLabel = UILabel()
@@ -88,13 +89,10 @@ final class ShortCurrencySelectionViewController: UIViewController {
     }
     
     private func generateFixedPopularCurrencies() {
-        // Создаем копию всех доступных валют
         var allCurrencies = currencyObj.items
         
-        // Начинаем с текущей пары валют
         var newPopularCurrencies: [String] = []
         
-        // Добавляем текущие валюты из пары, если их нет в списке
         if !newPopularCurrencies.contains(currentPair.from) {
             newPopularCurrencies.append(currentPair.from)
         }
@@ -130,19 +128,8 @@ final class ShortCurrencySelectionViewController: UIViewController {
     }
     
     @objc private func openFullList() {
-        guard let delegate = self.delegate else { return }
-        
-        let fullVC = CurrencySelectionViewController()
-        fullVC.delegate = delegate
-        fullVC.currentPair = self.currentPair
-        
-        if let nav = self.presentingViewController?.navigationController {
-            self.dismiss(animated: true) {
-                nav.pushViewController(fullVC, animated: true)
-            }
-        } else {
-            self.present(fullVC, animated: true)
-        }
+        guard let delegate else { return }
+        onOpenFullList?(currentPair, delegate)
     }
 }
 
@@ -188,9 +175,7 @@ extension ShortCurrencySelectionViewController: UICollectionViewDataSource, UICo
             CurrencySelectionViewController(),
             didUpdatePair: currentPair
         )
-        
         updatePairLabel()
-    
         collectionView.reloadData()
     }
     

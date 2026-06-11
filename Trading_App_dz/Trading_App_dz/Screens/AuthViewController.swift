@@ -1,13 +1,33 @@
-import UIKit
+import Combine
 import Foundation
+import UIKit
 
 final class AuthViewController: UIViewController {
     private let header = UILabel()
     private let loginTextField = UITextField()
     private let passwordTextField = UITextField()
     private let actionButton = UIButton()
+    private let cantLogin = UIButton()
     private let modeSegmentedControl = UISegmentedControl(items: ["Вход", "Регистрация"])
     private let containerStack = UIStackView()
+
+    private var cancellables = Set<AnyCancellable>()
+    private let onAuthorized: () -> Void
+    private let onCantLogin: () -> Void
+
+    init(
+        onAuthorized: @escaping () -> Void = {},
+        onCantLogin: @escaping () -> Void = {}
+    ) {
+        self.onAuthorized = onAuthorized
+        self.onCantLogin = onCantLogin
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     private enum AuthMode {
         case signIn
@@ -20,8 +40,52 @@ final class AuthViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        AppLogger.auth("Экран авторизации загружен", level: .info)
         setupUI()
         makeConstraints()
+        bindValidation()
+        updateActionButtonTitle()
+        modeSegmentedControl.addTarget(self, action: #selector(modeSegmentChanged), for: .valueChanged)
+    }
+
+    private func bindValidation() {
+        let loginPublisher = loginTextField.textPublisher
+        let passwordPublisher = passwordTextField.textPublisher
+
+        Publishers.CombineLatest(loginPublisher, passwordPublisher)
+            .map { login, password in
+                let trimmed = login.trimmingCharacters(in: .whitespacesAndNewlines)
+                return AuthViewController.isFormValid(login: trimmed, password: password)
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] isValid in
+                guard let self else { return }
+                self.actionButton.isEnabled = isValid
+                self.actionButton.alpha = isValid ? 1 : 0.45
+            }
+            .store(in: &cancellables)
+    }
+
+    private static func isFormValid(login: String, password: String) -> Bool {
+        !login.isEmpty && !password.isEmpty && password.count >= 4
+    }
+
+    @objc
+    private func modeSegmentChanged() {
+        let modeName = currentMode == .signIn ? "signIn" : "signUp"
+        AppLogger.auth("Смена режима авторизации", level: .info, metadata: ["mode": modeName])
+        updateActionButtonTitle()
+    }
+
+    private func updateActionButtonTitle() {
+        let title: String
+        switch currentMode {
+        case .signIn:
+            title = "Войти"
+        case .signUp:
+            title = "Зарегистрироваться"
+        }
+        actionButton.setTitle(title, for: .normal)
     }
 
     private func setupUI() {
@@ -31,6 +95,7 @@ final class AuthViewController: UIViewController {
         setupLogin()
         setupPassword()
         setupActionButton()
+        setupCantLogin()
         setupSegment()
     }
 
@@ -104,7 +169,8 @@ final class AuthViewController: UIViewController {
     }
 
     private func setupActionButton() {
-        actionButton.setTitle("Вперед", for: .normal)
+        actionButton.isEnabled = false
+        actionButton.alpha = 0.45
         actionButton.layer.cornerRadius = 16
         actionButton.backgroundColor = .systemBlue
         actionButton.addTarget(self, action: #selector(handleForwardTap), for: .touchUpInside)
@@ -116,45 +182,83 @@ final class AuthViewController: UIViewController {
         modeSegmentedControl.selectedSegmentIndex = 0
         containerStack.addArrangedSubview(modeSegmentedControl)
     }
+    
+    private func setupCantLogin() {
+        cantLogin.setTitle("Не получается войти?", for: .normal)
+        cantLogin.setTitleColor(.systemBlue, for: .normal)
+        cantLogin.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
+        cantLogin.addTarget(self, action: #selector(handleTapCantLogin), for: .touchUpInside)
+        containerStack.addArrangedSubview(cantLogin)
+    }
 
     @objc
+    func handleTapCantLogin() {
+        AppLogger.auth("Нажатие на кнопку образтной связи", level: .info)
+        onCantLogin()
+    }
+    
+    @objc
     func handleForwardTap() {
+        guard actionButton.isEnabled else {
+            AppLogger.auth("Нажатие кнопки при неактивной форме", level: .warning)
+            return
+        }
         guard let login = loginTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               let password = passwordTextField.text else {
+            AppLogger.auth("Пустые поля при отправке формы", level: .warning)
             showAlert(message: "Заполните все поля")
             return
         }
 
         guard isInputValid(login: login, password: password) else {
+            AppLogger.auth(
+                "Валидация формы не пройдена",
+                level: .warning,
+                metadata: [
+                    "loginLength": "\(login.count)",
+                    "passwordLength": "\(password.count)"
+                ]
+            )
             showAlert(message: "Логин не должен быть пустым, пароль минимум 4 символа")
             return
         }
+
+        let modeName = currentMode == .signIn ? "signIn" : "signUp"
+        AppLogger.auth(
+            "Отправка формы авторизации",
+            level: .info,
+            metadata: ["mode": modeName, "loginLength": "\(login.count)"]
+        )
 
         switch currentMode {
         case .signIn:
             if AuthSessionService.shared.validateCredentials(login: login, password: password) {
                 AuthSessionService.shared.isLoggedIn = true
-                switchToMainApp()
+                AppLogger.auth("Успешный вход, переход в приложение", level: .info)
+                onAuthorized()
             } else {
-                // По ТЗ достаточно не пускать пользователя при неверных данных.
-                return
+                AppLogger.auth("Ошибка входа: неверные учётные данные", level: .error)
+                showAlert(message: "Неверный логин или пароль")
             }
         case .signUp:
             let success = AuthSessionService.shared.saveUser(login: login, password: password)
             if success {
                 AuthSessionService.shared.isLoggedIn = true
-                switchToMainApp()
+                AppLogger.auth("Успешная регистрация, переход в приложение", level: .info)
+                onAuthorized()
             } else {
+                AppLogger.auth("Ошибка регистрации: не удалось сохранить пользователя", level: .error)
                 showAlert(message: "Не удалось сохранить пользователя")
             }
         }
     }
 
     private func isInputValid(login: String, password: String) -> Bool {
-        return !login.isEmpty && !password.isEmpty && password.count >= 4
+        Self.isFormValid(login: login, password: password)
     }
 
     private func showAlert(message: String) {
+        AppLogger.auth("Показ алерта пользователю", level: .warning, metadata: ["message": message])
         let alert = UIAlertController(
             title: "Ошибка",
             message: message,
@@ -164,9 +268,16 @@ final class AuthViewController: UIViewController {
         present(alert, animated: true)
     }
 
-    private func switchToMainApp() {
-        if let sceneDelegate = view.window?.windowScene?.delegate as? SceneDelegate {
-            sceneDelegate.switchToMainApp()
-        }
+}
+
+private extension UITextField {
+    var textPublisher: AnyPublisher<String, Never> {
+        Publishers.Merge(
+            Just(text ?? ""),
+            NotificationCenter.default
+                .publisher(for: UITextField.textDidChangeNotification, object: self)
+                .compactMap { ($0.object as? UITextField)?.text }
+        )
+        .eraseToAnyPublisher()
     }
 }

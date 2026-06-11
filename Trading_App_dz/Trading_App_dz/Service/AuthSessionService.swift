@@ -22,19 +22,37 @@ final class AuthSessionService {
     }
 
     func saveUser(login: String, password: String) -> Bool {
+        AppLogger.auth("Регистрация пользователя", level: .info, metadata: ["loginLength": "\(login.count)"])
         clearSavedUser()
         let loginSaved = KeychainService.shared.save(key: loginKey, value: login)
         let passwordSaved = KeychainService.shared.save(key: passwordKey, value: password)
-        return loginSaved && passwordSaved
+        let success = loginSaved && passwordSaved
+        AppLogger.auth(
+            success ? "Пользователь успешно сохранён" : "Не удалось сохранить учётные данные",
+            level: success ? .info : .error,
+            metadata: ["loginSaved": "\(loginSaved)", "passwordSaved": "\(passwordSaved)"]
+        )
+        return success
     }
 
     func validateCredentials(login: String, password: String) -> Bool {
         guard let savedLogin = KeychainService.shared.get(key: loginKey),
               let savedPassword = KeychainService.shared.get(key: passwordKey) else {
+            AppLogger.auth(
+                "Вход отклонён: учётные данные не найдены в Keychain",
+                level: .warning,
+                metadata: ["loginLength": "\(login.count)"]
+            )
             return false
         }
 
-        return savedLogin == login && savedPassword == password
+        let isValid = savedLogin == login && savedPassword == password
+        AppLogger.auth(
+            isValid ? "Учётные данные подтверждены" : "Вход отклонён: неверный логин или пароль",
+            level: isValid ? .info : .warning,
+            metadata: ["loginLength": "\(login.count)"]
+        )
+        return isValid
     }
 
     func canAutoLogin() -> Bool {
@@ -42,6 +60,7 @@ final class AuthSessionService {
     }
 
     func logout() {
+        AppLogger.auth("Выход из сессии", level: .info)
         isLoggedIn = false
     }
 
