@@ -11,94 +11,82 @@ final class P2PExchangeViewController: UIViewController {
     private let statusLabel = UILabel()
     private let tableView = UITableView()
 
-    private var currentPair = CurrencyPair(from: "USD", to: "BTC")
-    private let networkService = NetworkService()
-    private let wallet = Wallet(
-        initialBalances: [
-            "USD": 20_000,
-            "BTC": 1.4,
-            "EUR": 12_000,
-            "USDT": 30_000,
-            "ETH": 22
-        ]
-    )
+    private let viewModel: P2PExchangeViewModel
+    private weak var coordinator: P2PCoordinator?
     private var offers: [P2POffer] = []
-    private var apiCurrencies: [String] = []
+
+    init(viewModel: P2PExchangeViewModel, coordinator: P2PCoordinator) {
+        self.viewModel = viewModel
+        self.coordinator = coordinator
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        AppLogger.p2p("Экран P2P-обмена загружен", level: .info)
         setupUI()
         setupNavigationBar()
-        updatePairUI()
-        updateBalances()
-        loadApiCurrencies()
-        loadOffers()
+        bindViewModel()
+        viewModel.viewDidLoad()
     }
 
     @objc private func openWalletScreen() {
-        let walletVC = WalletViewController(wallet: wallet)
-        let nav = UINavigationController(rootViewController: walletVC)
-        nav.modalPresentationStyle = .formSheet
-        present(nav, animated: true)
+        AppLogger.p2p("Открытие экрана кошелька", level: .info)
+        coordinator?.showWallet(wallet: viewModel.wallet)
     }
 
     @objc private func openCurrencySelection() {
-        let vc = CurrencySelectionViewController()
-        vc.delegate = self
-        vc.currentPair = currentPair
-        vc.apiCurrencies = apiCurrencies
-        navigationController?.pushViewController(vc, animated: true)
+        AppLogger.p2p("Открытие выбора валютной пары", level: .info)
+        coordinator?.showCurrencySelection(
+            currentPair: viewModel.state.currentPair,
+            apiCurrencies: viewModel.state.apiCurrencies,
+            delegate: self
+        )
     }
 
-    private func loadApiCurrencies() {
-        networkService.loadCurrencies { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                if case .success(let currencies) = result {
-                    self.apiCurrencies = currencies
-                }
-            }
-        }
-    }
-
-    private func loadOffers() {
-        statusLabel.textColor = .secondaryLabel
-        statusLabel.text = "Загрузка предложений..."
-
-        networkService.loadOffers(for: currentPair) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                switch result {
-                case .success(let offers):
-                    self.offers = offers
-                    self.statusLabel.textColor = .systemGreen
-                    self.statusLabel.text = "Найдено продавцов: \(offers.count)"
-                case .failure(let error):
-                    self.offers = []
-                    self.statusLabel.textColor = .systemRed
-                    self.statusLabel.text = error.userMessage
-                    self.presentErrorAlert(error: error)
-                }
-                self.tableView.reloadData()
-            }
-        }
-    }
-
-    private func updatePairUI() {
-        fromCurrencyLabel.text = currentPair.from
-        toCurrencyLabel.text = currentPair.to
-    }
-
-    private func updateBalances() {
-        let fromBalance = wallet.balance(for: currentPair.from)
-        let toBalance = wallet.balance(for: currentPair.to)
+    private func render(state: P2PExchangeViewModel.State) {
+        offers = state.offers
+        fromCurrencyLabel.text = state.currentPair.from
+        toCurrencyLabel.text = state.currentPair.to
+        statusLabel.text = state.statusText
+        statusLabel.textColor = state.statusIsError ? .systemRed : .systemGreen
         balancesLabel.text = String(
             format: "Баланс %@: %.4f | %@: %.4f",
-            currentPair.from,
-            fromBalance,
-            currentPair.to,
-            toBalance
+            state.currentPair.from,
+            state.fromBalance,
+            state.currentPair.to,
+            state.toBalance
         )
+        tableView.reloadData()
+    }
+
+    private func bindViewModel() {
+        viewModel.onStateUpdated = { [weak self] state in
+            self?.render(state: state)
+        }
+        viewModel.onError = { [weak self] error in
+            AppLogger.p2p(
+                "Показ ошибки пользователю",
+                level: .warning,
+                metadata: ["error": error.logDescription]
+            )
+            self?.presentErrorAlert(error: error)
+        }
+        viewModel.onExchangeSuccess = { [weak self] in
+            AppLogger.p2p("Показ алерта об успешном обмене", level: .info)
+            let success = UIAlertController(
+                title: "Успех",
+                message: "Обмен успешно выполнен.",
+                preferredStyle: .alert
+            )
+            success.addAction(UIAlertAction(title: "OK", style: .default))
+            self?.present(success, animated: true)
+        }
     }
 
     private func presentExchangePrompt(for offer: P2POffer) {
@@ -117,33 +105,16 @@ final class P2PExchangeViewController: UIViewController {
                   let rawAmount = alert?.textFields?.first?.text,
                   let amount = Double(rawAmount),
                   amount > 0 else {
+                AppLogger.p2p(
+                    "Некорректная сумма обмена в диалоге",
+                    level: .warning,
+                    metadata: ["rawAmount": alert?.textFields?.first?.text ?? "nil"]
+                )
                 return
             }
-            self.executeExchange(offer: offer, amount: amount)
+            self.viewModel.executeExchange(offer: offer, amount: amount)
         }))
         present(alert, animated: true)
-    }
-
-    private func executeExchange(offer: P2POffer, amount: Double) {
-        networkService.performExchange(offer: offer, amount: amount, wallet: wallet) { [weak self] result in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                switch result {
-                case .success:
-                    self.updateBalances()
-                    self.loadOffers()
-                    let success = UIAlertController(
-                        title: "Успех",
-                        message: "Обмен успешно выполнен.",
-                        preferredStyle: .alert
-                    )
-                    success.addAction(UIAlertAction(title: "OK", style: .default))
-                    self.present(success, animated: true)
-                case .failure(let error):
-                    self.presentErrorAlert(error: error)
-                }
-            }
-        }
     }
 
     private func presentErrorAlert(error: NetworkServiceError) {
@@ -156,6 +127,8 @@ final class P2PExchangeViewController: UIViewController {
         switch error {
         case .noInternet:
             iconName = "wifi.slash"
+        case .timeout:
+            iconName = "clock.badge.exclamationmark"
         case .parsing:
             iconName = "exclamationmark.triangle"
         case .forbiddenSection:
@@ -197,7 +170,25 @@ extension P2PExchangeViewController: UITableViewDataSource {
 
 extension P2PExchangeViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        presentExchangePrompt(for: offers[indexPath.row])
+        let offer = offers[indexPath.row]
+        AppLogger.p2p(
+            "Выбрано предложение",
+            level: .info,
+            metadata: ["seller": offer.sellerName, "rate": String(format: "%.6f", offer.rate)]
+        )
+        let sheet = UIAlertController(title: offer.sellerName, message: "Выберите действие", preferredStyle: .actionSheet)
+        sheet.addAction(UIAlertAction(title: "Обмен", style: .default) { [weak self] _ in
+            self?.presentExchangePrompt(for: offer)
+        })
+        sheet.addAction(UIAlertAction(title: "Информация о продавце", style: .default) { [weak self] _ in
+            self?.coordinator?.showSellerInfo(offer: offer)
+        })
+        sheet.addAction(UIAlertAction(title: "Отмена", style: .cancel))
+        if let popover = sheet.popoverPresentationController {
+            popover.sourceView = tableView
+            popover.sourceRect = tableView.rectForRow(at: indexPath)
+        }
+        present(sheet, animated: true)
     }
 }
 
@@ -304,9 +295,11 @@ extension P2PExchangeViewController: CurrencySelectionViewControllerDelegate {
         _ controller: CurrencySelectionViewController,
         didUpdatePair pair: CurrencyPair
     ) {
-        currentPair = pair
-        updatePairUI()
-        updateBalances()
-        loadOffers()
+        AppLogger.p2p(
+            "Пара обновлена из экрана выбора валют",
+            level: .info,
+            metadata: ["pair": "\(pair.from)/\(pair.to)"]
+        )
+        viewModel.selectPair(pair)
     }
 }
